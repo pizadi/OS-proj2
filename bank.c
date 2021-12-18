@@ -5,6 +5,7 @@
 #include<linux/uaccess.h>
 
 #include "mkshlock.h"
+#include "stringop.h"
 
 #define DEVICE_NAME "bank_device"
 MODULE_LICENSE("GPL");
@@ -41,7 +42,15 @@ static void __exit bank_exit(void){
 
 static ssize_t bank_read(struct file * filep, char * buffer, size_t len, loff_t * offset){
 	char rep[2000];
-
+	char * repp;
+	for (int i = 0; i < N; i++){
+		repp = print_int(repp, rep[i]);
+		if (i < N-1){
+			*repp = ',';
+			*(repp+1) = ' ';
+			repp += 2;
+		}
+	}
 }
 
 static ssize_t bank_write(struct file * filep, const char *, size_t len, loff_t * offset){
