@@ -21,6 +21,7 @@ static struct file_operations fops = {
 
 static int major;
 static int accounts[N];
+static lock_t lk;
 
 static int __init bank_init(void){
 	major = register_chrdev(0, DEVICE_NAME, &fops);
@@ -30,7 +31,8 @@ static int __init bank_init(void){
 	}
 	else {
 		printk(KERN_ALERT "bank_device loaded on %d.\n", major);
-		for (int i = 0; i < N; i++) accounts[i] = 2000000; 
+		for (int i = 0; i < N; i++) accounts[i] = 2000000;
+		lock_init(&lk, 0);
 		return 0;
 	}
 }
@@ -40,9 +42,20 @@ static void __exit bank_exit(void){
 	printk(KERN_ALERT "bank_device unloaded.\n");
 }
 
+static int bank_open(struct inode * inodep, struct file * filep){
+	printk(KERN_INFO "bank_device opened.\n");
+	return 0;
+}
+
+static int bank_release(struct inode * inodep, struct file * filep){
+	printk(KERN_INFO "bank_device released.\n");
+	return 0;
+}
+
 static ssize_t bank_read(struct file * filep, char * buffer, size_t len, loff_t * offset){
 	char rep[2000];
 	char * repp;
+	lock(&lk);
 	for (int i = 0; i < N; i++){
 		repp = print_int(repp, rep[i]);
 		if (i < N-1){
@@ -51,8 +64,39 @@ static ssize_t bank_read(struct file * filep, char * buffer, size_t len, loff_t 
 			repp += 2;
 		}
 	}
+	release(&lk);
+	int errors = 0;
+	errors = copy_to_user(buffer, message, strlen(message));
+	return errors?(-EFAULT):((int)repp - (int)rep);
 }
 
-static ssize_t bank_write(struct file * filep, const char *, size_t len, loff_t * offset){
+static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, loff_t * offset){
+	size_t ncopied, datalen = 50;
+	char databuffer[50];
+	if (len < datalen) datalen = len;
+	ncopied = copy_from_user(databuffer, buffer, datalen);
+	
+	if (ncopied){
+		printk("Couldn't copy the input from user.\n");
+		return len;
+	}
+	else {
+		char * ptr = databuffer;
+		int a, b, c, d;
+		ptr = put_type(ptr, &a);
+		if (a > 0){
+	
+		}
+		else if (a < 0){
+			for (int i = 0; i < N; i++) accounts[i] = 2000000;
+			printk(KERNEL_ALERT "bank_device was reset.");
+			return len;
+		}
+		else{
 
+		}
+	}
 }
+
+module_init(bank_init);
+module_exit(bank_exit);
