@@ -1,5 +1,5 @@
 BINARY			:= bank
-KERNEL			:= /lib/modules$(shell uname -r)/build
+KERNEL			:= /lib/modules/$(shell uname -r)/build
 ARCH				:= x86
 C_FLAGS			:= -Wall
 KMOD_DIR		:= $(shell pwd)
