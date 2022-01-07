@@ -1,14 +1,16 @@
 #include "stringop.h"
+#include<linux/module.h>
 
+#define DEVICE_NAME "bank"
 char * print_int(char * buffer, int i) {
-	char * ptr = buffer;
+	char * ptr = buffer, digits[10];
+	int t;
 	if (i | (1 << (8*sizeof(int)-1))) {
 		*ptr = '-';
 		ptr++;
 		i = ~i + 1;
 	}
-	int t = 0;
-	char digits[10];
+	t = 0;
 	if (i){
 		while (i){
 			digits[t] = i%10;
@@ -20,7 +22,7 @@ char * print_int(char * buffer, int i) {
 			ptr++;
 			t--;
 		}
-		ptr = '\0';
+		*ptr = '\0';
 		return ptr;
 	}
 	else {
@@ -63,3 +65,6 @@ char * put_int_s(char * buffer, int * dest){
 		return ptr;
 	}
 }
+
+MODULE_LICENSE("GPL");
+MODULE_INFO(intree, "Y");

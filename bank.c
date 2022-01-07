@@ -3,12 +3,11 @@
 #include<linux/kernel.h>
 #include<linux/fs.h>
 #include<linux/uaccess.h>
-
+#include<linux/types.h>
 #include "mkshlock.h"
 #include "stringop.h"
 
-#define DEVICE_NAME "bank_device"
-MODULE_LICENSE("GPL");
+#define DEVICE_NAME "bank"
 
 #define N 100
 
@@ -31,8 +30,8 @@ static int __init bank_init(void){
 	}
 	else {
 		printk(KERN_ALERT "bank_device loaded on %d.\n", major);
-		for (int i = 0; i < N; i++) accounts[i] = 2000000;
-		lock_init(&lk, 0);
+//		for (int i = 0; i < N; i++) accounts[i] = 2000000;
+//		lock_init(&lk, 0);
 		return 0;
 	}
 }
@@ -100,3 +99,6 @@ static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, 
 
 module_init(bank_init);
 module_exit(bank_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_INFO(intree, "Y");

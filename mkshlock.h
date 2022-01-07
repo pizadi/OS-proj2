@@ -1,5 +1,5 @@
 typedef struct strlock {
-	int state
+	int state;
 } lock_t;
 
 void lock(lock_t *);
