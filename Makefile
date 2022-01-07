@@ -1,3 +1,4 @@
+CONFIG_MODULE_SIG=n
 BINARY			:= bank
 KERNEL			:= /lib/modules/$(shell uname -r)/build
 ARCH				:= x86
