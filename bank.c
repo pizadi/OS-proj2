@@ -30,8 +30,8 @@ static int __init bank_init(void){
 	}
 	else {
 		printk(KERN_ALERT "bank_device loaded on %d.\n", major);
-//		for (int i = 0; i < N; i++) accounts[i] = 2000000;
-//		lock_init(&lk, 0);
+		for (int i = 0; i < N; i++) accounts[i] = 2000000;
+		lock_init(&lk, 0);
 		return 0;
 	}
 }
@@ -84,7 +84,62 @@ static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, 
 		int a, b, c, d;
 		ptr = put_type(ptr, &a);
 		if (a > 0){
-	
+			if (a == 1){
+				ptr = put_int_s(ptr, &b);
+				ptr = put_int_s(ptr, &c);
+				ptr = put_int_s(ptr, &d);
+				if (b < 0 || b >= 100 || c < 0 || c >= 100){
+					printk(KERN_ALERT "invalid account ID.\n");
+					return len;
+				}
+				if (d < 0){
+					printk(KERN_ALERT "invalid payment.\n");
+					return len;
+				}
+				//lk
+				if (accounts[b] < d){
+					printk(KERN_ALERT "insufficient funds.\n");
+					return len;
+				}
+				accounts[b] -= d;
+				accounts[c] += d;
+				//lk
+				return len;
+			} else if (a == 2) {
+				ptr = put_int_s(ptr, &c);
+				ptr = put_int_s(ptr, &d);
+				if (c >= 100 || c < 0){
+					printk(KERN_ALERT "invalid account ID.\n");
+					return len;
+				}
+				if (d < 0){
+					printk(KERN_ALERT "invalid payment.\n");
+					return len;
+				}
+				//lk
+				accounts[c] += d;
+				//lk
+				return len;
+			} else if (a == 3) {
+				ptr = put_int_s(ptr, &b);
+				ptr = put_int_s(ptr, &d);
+				if (b >= 100 || b < 0){
+					printk(KERN_ALERT "invalid account ID.\n");
+					return len;
+				}
+				if (d < 0){
+					printk(KERN_ALERT "invalid payment.\n");
+					return len;
+				}
+				if (accounts[b] < d){
+					printk(KERN_ALERT "insufficient funds.\n");
+					return len;
+				}
+				//lk
+				accounts[b] -= d;
+				//lk
+				return len;
+			}
 		}
 		else if (a < 0){
 			for (int i = 0; i < N; i++) accounts[i] = 2000000;
@@ -92,7 +147,8 @@ static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, 
 			return len;
 		}
 		else{
-
+			printk(KERNEL_ALERT "invalid input given to bank_device.");
+			return len;
 		}
 	}
 }
