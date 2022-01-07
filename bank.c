@@ -96,14 +96,14 @@ static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, 
 					printk(KERN_ALERT "invalid payment.\n");
 					return len;
 				}
-				//lk
+				lock(&lk);
 				if (accounts[b] < d){
 					printk(KERN_ALERT "insufficient funds.\n");
 					return len;
 				}
 				accounts[b] -= d;
 				accounts[c] += d;
-				//lk
+				release(&lk);
 				return len;
 			} else if (a == 2) {
 				ptr = put_int_s(ptr, &c);
@@ -116,9 +116,9 @@ static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, 
 					printk(KERN_ALERT "invalid payment.\n");
 					return len;
 				}
-				//lk
+				lock(&lk);
 				accounts[c] += d;
-				//lk
+				release(&lk)
 				return len;
 			} else if (a == 3) {
 				ptr = put_int_s(ptr, &b);
@@ -131,19 +131,21 @@ static ssize_t bank_write(struct file * filep, const char * buffer, size_t len, 
 					printk(KERN_ALERT "invalid payment.\n");
 					return len;
 				}
+				lock(&lk);
 				if (accounts[b] < d){
 					printk(KERN_ALERT "insufficient funds.\n");
 					return len;
 				}
-				//lk
 				accounts[b] -= d;
-				//lk
+				release(&lk);
 				return len;
 			}
 		}
 		else if (a < 0){
+			lock(&lk);
 			for (int i = 0; i < N; i++) accounts[i] = 2000000;
 			printk(KERNEL_ALERT "bank_device was reset.");
+			release(&lk);
 			return len;
 		}
 		else{
